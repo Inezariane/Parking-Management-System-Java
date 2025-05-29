@@ -72,13 +72,9 @@ public class VehicleController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "plateNumber") String sort,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "10") int size) {
         
-        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
-        
+        Pageable pageable = PageRequest.of(page, size);
         Page<Vehicle> vehicles = vehicleService.listVehicles(userDetails.getUsername(), search, pageable);
         return ResponseEntity.ok(ApiResponse.success(vehicles));
     }
