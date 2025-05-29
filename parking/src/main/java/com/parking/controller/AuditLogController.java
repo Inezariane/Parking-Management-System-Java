@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +28,14 @@ public class AuditLogController {
             @RequestParam(required = false) String action,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) String search,
-            Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "timestamp") String sort,
+            @RequestParam(defaultValue = "desc") String direction) {
+        
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+        
         Page<AuditLog> logs = auditLogService.listLogs(action, userId, search, pageable);
         return ResponseEntity.ok(ApiResponse.success(logs));
     }

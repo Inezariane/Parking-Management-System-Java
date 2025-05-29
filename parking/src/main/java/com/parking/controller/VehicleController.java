@@ -10,7 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -69,7 +71,14 @@ public class VehicleController {
     public ResponseEntity<ApiResponse<Page<Vehicle>>> listVehicles(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam(required = false) String search,
-            @PageableDefault(sort = "plateNumber", direction = org.springframework.data.domain.Sort.Direction.ASC) Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "plateNumber") String sort,
+            @RequestParam(defaultValue = "asc") String direction) {
+        
+        Sort.Direction sortDirection = Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sort));
+        
         Page<Vehicle> vehicles = vehicleService.listVehicles(userDetails.getUsername(), search, pageable);
         return ResponseEntity.ok(ApiResponse.success(vehicles));
     }
